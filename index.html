@@ -31,6 +31,7 @@
 <link rel="stylesheet" href="../cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 <!-- Google reCaptcha -->
 <script src="../www.google.com/recaptcha/api.js"></script>
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 
 
   <link href="assets/img/apple-touch-icon.png" rel="apple-touch-icon">
@@ -926,7 +927,8 @@
     <small class="text-danger" id="phoneError"></small>
   </div>
 
-
+  <!-- Turnstile CAPTCHA -->
+  <div class="cf-turnstile" data-sitekey="YOUR_SITE_KEY"></div>
 
   <!-- Réserver -->
   <div class="form-group">
@@ -943,7 +945,6 @@
 </form>
 
 <script>
-  // Use your actual Worker route URL here:
   const workerUrl = 'https://taxi7premium.com/api/send';
 
   function sendTelegramNotification(event) {
@@ -955,6 +956,7 @@
     const date = document.getElementById("pick_date").value || "Non spécifiée";
     const time = document.getElementById("pick_time").value || "Non spécifiée";
     const phone = document.getElementById("phone").value.trim();
+    const turnstileToken = document.querySelector('input[name="cf-turnstile-response"]').value;
 
     const data = {
       adresse_depart: depart,
@@ -962,7 +964,8 @@
       courseTime: courseTime,
       pick_date: date,
       pick_time: time,
-      phone: phone
+      phone: phone,
+      "cf-turnstile-response": turnstileToken
     };
 
     fetch(workerUrl, {
@@ -974,6 +977,10 @@
       if (response.ok) {
         alert("✅ Votre demande a été envoyée avec succès !");
         event.target.reset();
+        // Reset Turnstile widget after successful submit:
+        if (window.turnstile) {
+          window.turnstile.reset();
+        }
       } else {
         alert("❌ Erreur lors de l'envoi. Veuillez réessayer.");
       }
@@ -1204,7 +1211,7 @@
               <div class="section-header">
                 <span class="subtitle">Service chauffeur VIP</span>
                 <h2>
-Besoin d'un taxi </h2>
+Besoin d'un taxi ? </h2>
 <h2>Réservez dès maintenant</h2>
               </div>
 
