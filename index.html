@@ -847,6 +847,9 @@
 
 
 
+<!-- Turnstile JS API -->
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+
 <form onsubmit="return sendTelegramNotification(event)" class="request-form ftco-animate">
 
   <!-- Lieu de départ -->
@@ -928,7 +931,7 @@
   </div>
 
   <!-- Turnstile CAPTCHA -->
-  <div class="cf-turnstile" data-sitekey="YOUR_SITE_KEY"></div>
+  <div class="cf-turnstile" data-sitekey="0x4AAAAAABn1pAm-iycMKCtu"></div>
 
   <!-- Réserver -->
   <div class="form-group">
@@ -950,13 +953,20 @@
   function sendTelegramNotification(event) {
     event.preventDefault();
 
+    // Get Turnstile token value
+    const turnstileTokenInput = document.querySelector('input[name="cf-turnstile-response"]');
+    if (!turnstileTokenInput || !turnstileTokenInput.value) {
+      alert("❌ Veuillez compléter le CAPTCHA avant de soumettre le formulaire.");
+      return false; // Stop submission
+    }
+
     const depart = document.getElementById("adresse_depart").value.trim();
     const arrivee = document.getElementById("adresse").value.trim();
     const courseTime = document.querySelector('input[name="course-time"]:checked').value;
     const date = document.getElementById("pick_date").value || "Non spécifiée";
     const time = document.getElementById("pick_time").value || "Non spécifiée";
     const phone = document.getElementById("phone").value.trim();
-    const turnstileToken = document.querySelector('input[name="cf-turnstile-response"]').value;
+    const turnstileToken = turnstileTokenInput.value;
 
     const data = {
       adresse_depart: depart,
@@ -968,31 +978,19 @@
       "cf-turnstile-response": turnstileToken
     };
 
-    fetch(workerUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data)
-    })
-    .then(response => {
-      if (response.ok) {
-        alert("✅ Votre demande a été envoyée avec succès !");
-        event.target.reset();
-        // Reset Turnstile widget after successful submit:
-        if (window.turnstile) {
-          window.turnstile.reset();
-        }
-      } else {
-        alert("❌ Erreur lors de l'envoi. Veuillez réessayer.");
-      }
-    })
-    .catch(error => {
-      console.error("Erreur Worker:", error);
-      alert("❌ Une erreur est survenue : " + error.message);
-    });
+    // Just for testing: output data in console instead of sending to worker
+    console.log("Form data to send:", data);
+    alert("✅ CAPTCHA validé localement, formulaire prêt à être envoyé (simulate).");
 
-    return false;
+    // Reset Turnstile widget after test submit:
+    if (window.turnstile) {
+      window.turnstile.reset();
+    }
+
+    return false; // Prevent actual submission for now
   }
 </script>
+
 
 
         </div>
