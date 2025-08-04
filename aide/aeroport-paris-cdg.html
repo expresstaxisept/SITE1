@@ -37,7 +37,28 @@
   <!-- Vendor CSS Files -->
   <link href="../assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
 
+      <script>
+  // Cancel any scroll to top triggered by JS
+  window.scrollTo = function() {};
+  window.scroll = function() {};
+  document.body.scrollIntoView = function() {};
 
+  // Prevent any event that scrolls to top
+  window.addEventListener("scroll", function(e) {
+    // Optional: if needed, you can detect and stop a sudden scroll to top
+    if (window.scrollY === 0 && document.referrer !== '') {
+      e.stopImmediatePropagation();
+    }
+  }, true);
+
+  // Optional: Monitor hash change (like clicking <a href="#top">)
+  window.addEventListener("hashchange", function(e) {
+    if (location.hash === "" || location.hash === "#top") {
+      e.preventDefault();
+      history.pushState("", document.title, window.location.pathname + window.location.search);
+    }
+  }, false);
+</script>
 
  <!-- Google tag (gtag.js) -->
  <script async src="https://www.googletagmanager.com/gtag/js?id=AW-16909657112"></script>
